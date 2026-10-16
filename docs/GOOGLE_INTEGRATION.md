@@ -32,6 +32,6 @@ Rotate the encryption key only with a migration that decrypts/re-encrypts every 
 
 ## Scheduled sync
 
-The cron route authenticates with `CRON_SECRET`, loads at most 20 connected accounts, and runs bounded syncs concurrently. A five-minute database lease prevents overlapping syncs for one user. Each run stores status/counts and a sanitized error summary. Provider failures are surfaced per run; transient exponential retries are not implemented, so the next scheduled/manual sync is the retry mechanism.
+The cron route authenticates with `CRON_SECRET`, loads at most 20 connected accounts, and runs bounded syncs concurrently. A five-minute database lease prevents overlapping syncs for one user. Each run stores status/counts and a sanitized error summary. Provider failures are surfaced per run; transient exponential retries are not implemented, so the next scheduled/manual sync is the retry mechanism. Scheduled configuration is intentionally omitted from the repository for Vercel Hobby deployments: Hobby only supports daily cron jobs, while this product targets a 30-minute interval. Add the schedule after upgrading to a Vercel plan that supports the target frequency and configuring Supabase and Google secrets.
 
-Apply the base schema to a new project, or apply both dated migrations after the original schema before connecting Google. The configured 30-minute schedule is subject to the selected Vercel plan.
+Apply the base schema to a new project, or apply both dated migrations after the original schema before connecting Google. Manual sync is available after configuration; scheduled 30-minute sync requires a Vercel plan that supports that frequency.

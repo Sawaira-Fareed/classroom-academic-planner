@@ -11,7 +11,7 @@ A personal academic planner built with Next.js App Router, TypeScript, Supabase,
 - Browser-local persistence as an explicitly disclosed fallback, plus email/password Supabase auth and user-owned cloud course/task CRUD when configured
 - Supabase email/password authentication, RLS-protected user-owned courses/tasks/study blocks, and daily progress history
 - AES-256-GCM encrypted server-side Google refresh-token vault, signed OAuth state, status, disconnect/revocation
-- Manual and scheduled Google Classroom course, announcement, coursework, and filtered Gmail notification sync
+- Manual Google Classroom course, announcement, coursework, and filtered Gmail notification sync; scheduled sync is disabled on the free Vercel Hobby deployment
 - Idempotent source and coursework imports; AI-extracted announcement/email suggestions stay in a review queue
 - Dedicated Google Calendar selection/creation and idempotent writes for approved, dated tasks and saved study blocks
 - Authenticated Dot Buddy chat with bounded user-owned context and a persistent per-user AI rate limit
@@ -104,9 +104,7 @@ Store it in a secret manager and Vercel environment configuration. Losing or rot
 4. Update the production OAuth redirect URI.
 5. Apply the Supabase schema and all required migrations before enabling integrations.
 6. Deploy and verify `/api/health`.
-7. Verify the scheduled route logs before enabling real API sync.
-
-`vercel.json` requests a cron every 30 minutes. Confirm the selected Vercel plan supports the configured frequency.
+7. Keep scheduled sync disabled while using Vercel Hobby and before configuring Supabase/Google. Vercel Hobby only permits daily cron jobs; enable the 30-minute schedule only after upgrading to a plan that supports it and configuring the integration secrets. The authenticated sync route can still be run manually.
 
 ## Security notes
 
@@ -127,7 +125,7 @@ Store it in a secret manager and Vercel environment configuration. Losing or rot
 3. Configure Google Cloud OAuth and the token key; connect a test account and verify Classroom/Gmail sync and disconnect.
 4. Configure an OpenAI key and verify authenticated Dot Buddy and extraction; without credentials both report unavailable and do not mutate planner data.
 5. Create/select a dedicated Google calendar and verify approved-only, retry-safe event writes.
-6. Configure Vercel secrets and validate the 30-minute cron on a plan that supports that frequency.
+6. Upgrade to a Vercel plan that supports 30-minute Cron Jobs, configure Vercel secrets, then add and validate the scheduled sync configuration.
 7. Run the integration/security checklist in `docs/TEST_PLAN.md` against your own Supabase and Google test accounts.
 
 See `docs/TEST_PLAN.md` and `docs/GOOGLE_INTEGRATION.md`.
