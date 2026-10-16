@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createSupabaseAdmin, createUserSupabase } from "@/lib/supabase/server";
+import { getAiProviderConfig } from "@/lib/ai/provider";
 
 const requestSchema = z.object({
   message: z.string().trim().min(1).max(500),
@@ -17,8 +18,9 @@ export async function POST(request: NextRequest) {
   if (!supabaseUrl || !supabaseKey || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json({ error: "Supabase is not configured for authenticated AI requests." }, { status: 503 });
   }
-  if (!process.env.AI_PROVIDER_API_KEY || (process.env.AI_PROVIDER && process.env.AI_PROVIDER !== "openai")) {
-    return NextResponse.json({ error: "Dot Buddy AI is not configured. Set an OpenAI API key on the server." }, { status: 503 });
+  const aiProvider = getAiProviderConfig();
+  if (!aiProvider) {
+    return NextResponse.json({ error: "Dot Buddy AI is not configured. Set AI_PROVIDER to openai or openrouter and add a server-side API key." }, { status: 503 });
   }
 
   const supabase = await createUserSupabase();
@@ -65,14 +67,11 @@ export async function POST(request: NextRequest) {
 
   let providerResponse: Response;
   try {
-    providerResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+    providerResponse = await fetch(aiProvider.endpoint, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.AI_PROVIDER_API_KEY}`,
-        "Content-Type": "application/json",
-      },
+      headers: aiProvider.headers,
       body: JSON.stringify({
-        model: process.env.AI_MODEL || "gpt-4o-mini",
+        model: aiProvider.model,
         temperature: 0.3,
         max_tokens: 500,
         messages: [

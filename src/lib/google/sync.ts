@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { google } from "googleapis";
 import { z } from "zod";
 import { getGoogleClient } from "@/lib/google/server";
+import { getAiProviderConfig } from "@/lib/ai/provider";
 
 type ImportedSource = {
   user_id: string;
@@ -79,12 +80,13 @@ async function extractAnnouncementTasks(
   sources: { id: string; title: string; body: string; course_id: string | null }[],
   courseNames: Map<string, string>,
 ) {
-  if (!process.env.AI_PROVIDER_API_KEY || process.env.AI_PROVIDER && process.env.AI_PROVIDER !== "openai" || !sources.length) return 0;
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const aiProvider = getAiProviderConfig();
+  if (!aiProvider || !sources.length) return 0;
+  const response = await fetch(aiProvider.endpoint, {
     method: "POST",
-    headers: { Authorization: `Bearer ${process.env.AI_PROVIDER_API_KEY}`, "Content-Type": "application/json" },
+    headers: aiProvider.headers,
     body: JSON.stringify({
-      model: process.env.AI_MODEL || "gpt-4o-mini",
+      model: aiProvider.model,
       temperature: 0,
       max_tokens: 1200,
       response_format: { type: "json_object" },

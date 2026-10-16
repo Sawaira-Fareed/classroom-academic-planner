@@ -84,7 +84,7 @@ Review Google’s current scope classifications and verification requirements be
 
 Fill `.env.local`. Never commit it.
 
-For Dot Buddy, set `AI_PROVIDER=openai`, `AI_PROVIDER_API_KEY`, and optionally `AI_MODEL` (defaults to `gpt-4o-mini`). Keep the provider key server-only. The AI endpoint requires a signed-in Supabase account and fails clearly when configuration is missing.
+For Dot Buddy, set `AI_PROVIDER=openai` or `AI_PROVIDER=openrouter`, `AI_PROVIDER_API_KEY`, and optionally `AI_MODEL` (defaults to `gpt-4o-mini` for OpenAI and `openai/gpt-4o` for OpenRouter). Keep the provider key server-only. The AI endpoint requires a signed-in Supabase account and fails clearly when configuration is missing.
 
 For cron protection, set a long random `CRON_SECRET`. Vercel sends it as `Authorization: Bearer <CRON_SECRET>` for protected cron jobs when configured accordingly.
 
@@ -123,7 +123,7 @@ Store it in a secret manager and Vercel environment configuration. Losing or rot
 1. Run the dashboard and verify local course/task CRUD, refresh persistence, theme selection, and responsive navigation.
 2. Configure Supabase, apply the schema or migrations, and verify authenticated CRUD and RLS isolation.
 3. Configure Google Cloud OAuth and the token key; connect a test account and verify Classroom/Gmail sync and disconnect.
-4. Configure an OpenAI key and verify authenticated Dot Buddy and extraction; without credentials both report unavailable and do not mutate planner data.
+4. Configure an OpenAI or OpenRouter key and verify authenticated Dot Buddy and extraction; without credentials both report unavailable and do not mutate planner data.
 5. Create/select a dedicated Google calendar and verify approved-only, retry-safe event writes.
 6. Upgrade to a Vercel plan that supports 30-minute Cron Jobs, configure Vercel secrets, then add and validate the scheduled sync configuration.
 7. Run the integration/security checklist in `docs/TEST_PLAN.md` against your own Supabase and Google test accounts.
